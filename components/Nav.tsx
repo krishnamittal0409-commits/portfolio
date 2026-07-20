@@ -4,6 +4,7 @@ const links = [
   { href: "#skills", label: "Skills" },
   { href: "#certifications", label: "Certs" },
   { href: "#contact", label: "Contact" },
+  { href: "/admin/login", label: "Login" },
 ];
 
 export default function Nav() {
