@@ -19,15 +19,14 @@
 }
 
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+
+/* Smooth Scroll */
+html {
+  scroll-behavior: smooth;
+}
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  *, *::before, *::after {
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
-  }
 }
 
 body {
@@ -47,7 +46,7 @@ button { font-family: inherit; cursor: pointer; }
 .container { max-width: var(--container); margin: 0 auto; padding: 0 24px; }
 .mono { font-family: var(--font-mono); }
 
-/* ---------- nav ---------- */
+/* Nav */
 .nav {
   position: sticky;
   top: 0;
@@ -73,13 +72,12 @@ button { font-family: inherit; cursor: pointer; }
 .nav-links a { text-decoration: none; color: var(--text-dim); transition: color 0.15s ease; }
 .nav-links a:hover { color: var(--text); }
 
-/* Hamburger Menu */
+/* Hamburger */
 .hamburger {
   display: none;
   flex-direction: column;
   gap: 4px;
   cursor: pointer;
-  padding: 8px;
 }
 .hamburger span {
   width: 24px;
@@ -109,7 +107,7 @@ button { font-family: inherit; cursor: pointer; }
 }
 .mobile-menu a:hover { color: var(--text); }
 
-/* ---------- section rhythm ---------- */
+/* Sections */
 .section { padding: 96px 0; border-top: 1px solid var(--border-soft); }
 
 .eyebrow {
@@ -132,7 +130,7 @@ button { font-family: inherit; cursor: pointer; }
 }
 .section-sub { color: var(--text-dim); margin-top: 12px; max-width: 560px; line-height: 1.65; font-size: 15px; }
 
-/* ---------- buttons ---------- */
+/* Buttons, Cards, etc. */
 .btn {
   font-family: var(--font-display);
   font-weight: 600;
@@ -142,8 +140,7 @@ button { font-family: inherit; cursor: pointer; }
   border: 1px solid var(--border);
   background: transparent;
   color: var(--text);
-  transition: border-color 0.18s ease, transform 0.18s ease, background 0.18s ease;
-  text-decoration: none;
+  transition: all 0.18s ease;
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -151,7 +148,6 @@ button { font-family: inherit; cursor: pointer; }
 .btn:hover { border-color: var(--accent); transform: translateY(-1px); }
 .btn-primary { background: var(--accent); border-color: var(--accent); color: #0e1116; }
 .btn-primary:hover { background: var(--accent-soft); border-color: var(--accent-soft); }
-.btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
 .card {
   background: var(--surface);
@@ -169,13 +165,12 @@ button { font-family: inherit; cursor: pointer; }
   color: var(--text-dim);
 }
 
-/* ---------- scroll reveal ---------- */
-.reveal { opacity: 0; transform: translateY(14px); transition: opacity 0.5s ease, transform 0.5s ease; }
+.reveal { opacity: 0; transform: translateY(14px); transition: all 0.5s ease; }
 .reveal.is-visible { opacity: 1; transform: translateY(0); }
 
 :focus-visible { outline: 2px solid var(--accent-soft); outline-offset: 3px; }
 
-/* ---------- responsive split layouts ---------- */
+/* Responsive */
 .split-grid { display: grid; gap: 48px; }
 .split-grid--hero { grid-template-columns: 1.1fr 0.9fr; align-items: center; }
 .split-grid--certs { grid-template-columns: 1.15fr 1fr; }
@@ -191,8 +186,8 @@ button { font-family: inherit; cursor: pointer; }
   .nav-links { display: none; }
   .hamburger { display: flex; }
   .mobile-menu { display: flex; }
-  
-  h1 { font-size: 2.6rem !important; line-height: 1.12 !important; }
+
+  h1 { font-size: 2.55rem !important; line-height: 1.12 !important; }
   .section-title { font-size: 2.2rem !important; }
   .card { padding: 20px !important; }
 }
