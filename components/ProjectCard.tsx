@@ -23,6 +23,7 @@ export default function ProjectCard({ project }: { project: Project }) {
 
       if (!active) return;
       if (error) {
+        console.warn(`No likes found for ${project.slug}, starting at 0`);
         setLikes(0);
         return;
       }
@@ -37,19 +38,34 @@ export default function ProjectCard({ project }: { project: Project }) {
 
   async function handleLike() {
     if (liked || pending) return;
+
     setPending(true);
     const previous = likes ?? 0;
+
+    // Optimistic UI update
     setLikes(previous + 1);
     setLiked(true);
 
-    const { data, error } = await supabase.rpc("increment_like", { slug: project.slug });
+    console.log(`[Like] Attempting to increment: ${project.slug}`);
+
+    const { data, error } = await supabase.rpc("increment_like", { 
+      slug: project.slug 
+    });
+
+    console.log(`[Like] RPC Response for ${project.slug}:`, { data, error });
 
     if (error) {
+      console.error(`[Like] Failed for ${project.slug}:`, error);
       setLikes(previous);
       setLiked(false);
     } else if (typeof data === "number") {
+      console.log(`[Like] Success! New count: ${data}`);
       setLikes(data);
+    } else {
+      console.warn("[Like] Unexpected response:", data);
+      setLikes(previous + 1); // fallback
     }
+
     setPending(false);
   }
 
