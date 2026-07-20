@@ -65,7 +65,7 @@ export default function Contact() {
               required
               rows={5}
               placeholder="What are you building?"
-              style={{ ...inputStyle, resize: "vertical" }}
+              style={{ ...inputStyle, resize: "none" }}
             />
           </Field>
 
