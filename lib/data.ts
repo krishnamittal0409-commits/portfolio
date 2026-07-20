@@ -148,6 +148,6 @@ export const education = [
   {
     school: "Bright Scholar School",
     program: "CBSE Class X",
-    period: "",
+    period: "2022",
   },
 ];
