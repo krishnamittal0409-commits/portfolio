@@ -78,6 +78,9 @@ button { font-family: inherit; cursor: pointer; }
   flex-direction: column;
   gap: 4px;
   cursor: pointer;
+  background: transparent; /* Reset browser default */
+  border: none;            /* Reset browser default */
+  padding: 0;              /* Reset browser default */
 }
 .hamburger span {
   width: 24px;
