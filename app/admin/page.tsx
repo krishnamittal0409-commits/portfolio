@@ -1,7 +1,10 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
+
+const ALLOWED_EMAIL = "krishnamittal0409@gmail.com";
 
 type Message = {
   id: string;
@@ -20,10 +23,20 @@ export default function AdminPanel() {
   useEffect(() => {
     const check = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
 
-        if (!session) {
-          router.push("/admin/login");
+        if (!user) {
+          router.replace("/admin/login");
+          return;
+        }
+
+        if (
+          user.email?.toLowerCase() !== ALLOWED_EMAIL.toLowerCase()
+        ) {
+          await supabase.auth.signOut();
+          router.replace("/admin/login");
           return;
         }
 
@@ -43,24 +56,39 @@ export default function AdminPanel() {
         setLoading(false);
       }
     };
+
     check();
   }, [router]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    router.push("/admin/login");
+    router.replace("/admin/login");
   };
 
   if (loading) {
     return (
-      <div style={{ padding: 40, textAlign: "center", color: "#888" }}>
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: "#888",
+        }}
+      >
         Loading messages...
       </div>
     );
   }
 
   return (
-    <div style={{ padding: 40, maxWidth: 800, margin: "0 auto" }}>
+    <div
+      style={{
+        padding: 40,
+        maxWidth: 800,
+        margin: "0 auto",
+      }}
+    >
       <div
         style={{
           display: "flex",
@@ -70,13 +98,20 @@ export default function AdminPanel() {
         }}
       >
         <h1 style={{ margin: 0 }}>Contact Messages</h1>
+
         <button onClick={handleLogout} style={logoutButtonStyle}>
           Log out
         </button>
       </div>
 
       {errorMsg && (
-        <p style={{ color: "#e0715c", fontSize: 14, marginBottom: 16 }}>
+        <p
+          style={{
+            color: "#e0715c",
+            fontSize: 14,
+            marginBottom: 16,
+          }}
+        >
           Error: {errorMsg}
         </p>
       )}
@@ -93,13 +128,34 @@ export default function AdminPanel() {
             padding: "16px 0",
           }}
         >
-          <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+            }}
+          >
             <strong>{m.name}</strong>
-            <span style={{ fontSize: 12, color: "#888" }}>
+
+            <span
+              style={{
+                fontSize: 12,
+                color: "#888",
+              }}
+            >
               {new Date(m.created_at).toLocaleString()}
             </span>
           </div>
-          <p style={{ fontSize: 13, color: "#888", margin: "4px 0" }}>{m.email}</p>
+
+          <p
+            style={{
+              fontSize: 13,
+              color: "#888",
+              margin: "4px 0",
+            }}
+          >
+            {m.email}
+          </p>
+
           <p style={{ marginTop: 8 }}>{m.message}</p>
         </div>
       ))}
