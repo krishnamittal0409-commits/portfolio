@@ -1,7 +1,10 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
+
+const ALLOWED_EMAIL = "krishnamittal0409@gmail.com";
 
 export default function AdminLogin() {
   const [email, setEmail] = useState("");
@@ -12,24 +15,39 @@ export default function AdminLogin() {
 
   useEffect(() => {
     const check = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) router.push("/admin");
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (session) {
+        router.push("/admin");
+      }
     };
+
     check();
   }, [router]);
 
   useEffect(() => {
-    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "SIGNED_IN" && session) {
         router.push("/admin");
       }
     });
-    return () => listener.subscription.unsubscribe();
+
+    return () => subscription.unsubscribe();
   }, [router]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    if (email.trim().toLowerCase() !== ALLOWED_EMAIL.toLowerCase()) {
+      setError("This email is not authorized for admin access.");
+      return;
+    }
+
     setSending(true);
 
     const { error } = await supabase.auth.signInWithOtp({
@@ -48,6 +66,7 @@ export default function AdminLogin() {
       setError(error.message);
       return;
     }
+
     setSent(true);
   };
 
@@ -57,7 +76,8 @@ export default function AdminLogin() {
         <div style={cardStyle}>
           <h1 style={titleStyle}>Check your email</h1>
           <p style={{ color: "#aaa", fontSize: 14 }}>
-            A magic link has been sent to <strong>{email}</strong>. Click it to open the admin panel.
+            A magic link has been sent to <strong>{email}</strong>. Click it to
+            open the admin panel.
           </p>
         </div>
       </div>
@@ -68,19 +88,37 @@ export default function AdminLogin() {
     <div style={pageWrapper}>
       <div style={cardStyle}>
         <h1 style={titleStyle}>Admin Login</h1>
-        <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+
+        <form
+          onSubmit={handleLogin}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 14,
+          }}
+        >
           <input
             type="email"
-            placeholder="you@example.com"
+            placeholder="Admin email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
             style={inputStyle}
           />
-          <button type="submit" disabled={sending} style={buttonStyle}>
+
+          <button
+            type="submit"
+            disabled={sending}
+            style={buttonStyle}
+          >
             {sending ? "Sending..." : "Send magic link"}
           </button>
-          {error && <p style={{ color: "#e0715c", fontSize: 13.5 }}>{error}</p>}
+
+          {error && (
+            <p style={{ color: "#e0715c", fontSize: 13.5 }}>
+              {error}
+            </p>
+          )}
         </form>
       </div>
     </div>
