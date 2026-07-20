@@ -22,12 +22,7 @@ export default function ProjectCard({ project }: { project: Project }) {
         .single();
 
       if (!active) return;
-      if (error) {
-        console.warn(`No likes row for ${project.slug}`);
-        setLikes(0);
-        return;
-      }
-      setLikes(data?.likes ?? 0);
+      setLikes(error ? 0 : (data?.likes ?? 0));
     }
 
     loadLikes();
@@ -42,19 +37,13 @@ export default function ProjectCard({ project }: { project: Project }) {
     setLikes(previous + 1);
     setLiked(true);
 
-    console.log(`Calling increment_like with slug: ${project.slug}`);
-
-    const { data, error } = await supabase.rpc("increment_like", { 
-      slug: project.slug 
-    });
-
-    console.log("RPC Result:", { data, error });
+    const { data, error } = await supabase.rpc("increment_like", { slug: project.slug });
 
     if (error) {
-      console.error("Like Error:", error);
+      console.error("Like failed:", error.message);
       setLikes(previous);
       setLiked(false);
-    } else if (typeof data === "number") {
+    } else {
       setLikes(data);
     }
 
