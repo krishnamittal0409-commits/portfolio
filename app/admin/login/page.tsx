@@ -14,23 +14,34 @@ type Message = {
 export default function AdminPanel() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState("");
   const router = useRouter();
 
   useEffect(() => {
     const check = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        router.push("/admin/login");
-        return;
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+
+        if (!session) {
+          router.push("/admin/login");
+          return;
+        }
+
+        const { data, error } = await supabase
+          .from("messages")
+          .select("*")
+          .order("created_at", { ascending: false });
+
+        if (error) {
+          setErrorMsg(error.message);
+        } else {
+          setMessages(data || []);
+        }
+      } catch (err: any) {
+        setErrorMsg(err?.message || "Something went wrong loading messages.");
+      } finally {
+        setLoading(false);
       }
-
-      const { data, error } = await supabase
-        .from("messages")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (!error) setMessages(data || []);
-      setLoading(false);
     };
     check();
   }, [router]);
@@ -40,7 +51,13 @@ export default function AdminPanel() {
     router.push("/admin/login");
   };
 
-  if (loading) return <p style={{ padding: 40 }}>Loading...</p>;
+  if (loading) {
+    return (
+      <div style={{ padding: 40, textAlign: "center", color: "#888" }}>
+        Loading messages...
+      </div>
+    );
+  }
 
   return (
     <div style={{ padding: 40, maxWidth: 800, margin: "0 auto" }}>
@@ -52,16 +69,30 @@ export default function AdminPanel() {
           marginBottom: 24,
         }}
       >
-        <h1>Contact Messages</h1>
-        <button onClick={handleLogout} style={{ padding: "8px 16px", cursor: "pointer" }}>
+        <h1 style={{ margin: 0 }}>Contact Messages</h1>
+        <button onClick={handleLogout} style={logoutButtonStyle}>
           Log out
         </button>
       </div>
 
-      {messages.length === 0 && <p>No messages yet.</p>}
+      {errorMsg && (
+        <p style={{ color: "#e0715c", fontSize: 14, marginBottom: 16 }}>
+          Error: {errorMsg}
+        </p>
+      )}
+
+      {!errorMsg && messages.length === 0 && (
+        <p style={{ color: "#888" }}>No messages yet.</p>
+      )}
 
       {messages.map((m) => (
-        <div key={m.id} style={{ borderBottom: "1px solid #333", padding: "16px 0" }}>
+        <div
+          key={m.id}
+          style={{
+            borderBottom: "1px solid #333",
+            padding: "16px 0",
+          }}
+        >
           <div style={{ display: "flex", justifyContent: "space-between" }}>
             <strong>{m.name}</strong>
             <span style={{ fontSize: 12, color: "#888" }}>
@@ -75,3 +106,13 @@ export default function AdminPanel() {
     </div>
   );
 }
+
+const logoutButtonStyle: React.CSSProperties = {
+  padding: "8px 18px",
+  borderRadius: 8,
+  border: "1px solid #444",
+  background: "#1a1a1a",
+  color: "#eee",
+  fontSize: 13.5,
+  cursor: "pointer",
+};
