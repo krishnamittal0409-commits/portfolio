@@ -65,7 +65,7 @@ export const projects = [
     slug: "portfolio-site",
     code: "PRJ-02",
     name: "Responsive Portfolio Website",
-    tagline: "This site — built live, in progress",
+    tagline: "This site — Live and Running",
     stack: ["Next.js", "React", "Supabase", "Vercel"],
     points: [
       "Full-stack portfolio site built with Next.js and deployed on Vercel",
