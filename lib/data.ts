@@ -132,6 +132,7 @@ export const certifications = [
   { name: "Create Your E-Commerce Store with Shopify", issuer: "Coursera", year: "2026" },
   { name: "Search Engine Optimization (SEO) with Squarespace", issuer: "Coursera", year: "2026" },
   { name: "AI Tools & ChatGPT Workshop", issuer: "be10x", year: "2026" },
+  { name: "JavaScript Foundations Professional Certificate", issuer: "LinkedIn Learning (Mozilla)", year: "2026" },
 ];
 
 export const education = [
