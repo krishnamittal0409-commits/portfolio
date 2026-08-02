@@ -72,6 +72,15 @@ button { font-family: inherit; cursor: pointer; }
 .nav-links a { text-decoration: none; color: var(--text-dim); transition: color 0.15s ease; }
 .nav-links a:hover { color: var(--text); }
 
+/* Certification links */
+.cert-link {
+  transition: color 0.15s ease;
+}
+.cert-link:hover {
+  color: var(--accent-soft);
+  text-decoration: underline;
+}
+
 /* Hamburger */
 .hamburger {
   display: none;

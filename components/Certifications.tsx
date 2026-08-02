@@ -23,7 +23,19 @@ export default function Certifications() {
                 }}
               >
                 <div>
-                  <p style={{ fontSize: 14.5 }}>{cert.name}</p>
+                  {cert.url ? (
+                    <a
+                      href={cert.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ fontSize: 14.5, textDecoration: "none", color: "inherit" }}
+                      className="cert-link"
+                    >
+                      {cert.name}
+                    </a>
+                  ) : (
+                    <p style={{ fontSize: 14.5 }}>{cert.name}</p>
+                  )}
                   <p style={{ fontSize: 12.5, color: "var(--text-faint)", marginTop: 4 }}>{cert.issuer}</p>
                 </div>
                 <span className="mono" style={{ fontSize: 12, color: "var(--accent-soft)", whiteSpace: "nowrap" }}>
