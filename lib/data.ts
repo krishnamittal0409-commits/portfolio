@@ -128,6 +128,7 @@ export const skillGroups = [
 
 export const certifications = [
   { name: "JavaScript Foundations Professional Certificate", issuer: "LinkedIn Learning (Mozilla)", year: "2026", url: "https://www.linkedin.com/feed/update/urn:li:activity:7489702336806739968" },
+  { name: "Career Essentials in GitHub Professional Certificate", issuer: "LinkedIn Learning (GitHub)", year: "2026", url: "https://www.linkedin.com/feed/update/urn:li:activity:7490075474916737024" },
   { name: "Responsive Web Design", issuer: "freeCodeCamp", year: "2026", url: "https://www.linkedin.com/feed/update/urn:li:activity:7484602677616664577" },
   { name: "Build a Free Website with WordPress", issuer: "Coursera", year: "2026", url: "https://www.linkedin.com/feed/update/urn:li:activity:7483475914480115713" },
   { name: "Create Your E-Commerce Store with Shopify", issuer: "Coursera", year: "2026", url: "https://www.linkedin.com/feed/update/urn:li:activity:7483469558578573312" },
