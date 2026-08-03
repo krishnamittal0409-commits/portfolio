@@ -143,12 +143,12 @@ export const education = [
     period: "2024 — Present",
   },
   {
-    school: "Bright Scholar School",
+    school: "Bright Scholar School, Sonipat",
     program: "CBSE Class XII",
     period: "2024",
   },
   {
-    school: "Bright Scholar School",
+    school: "Bright Scholar School, Sonipat",
     program: "CBSE Class X",
     period: "2022",
   },
