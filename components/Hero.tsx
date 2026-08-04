@@ -1,8 +1,8 @@
 "use client";
 
-import { profile } from "@/lib/data";
+import { Profile } from "@/lib/content";
 
-export default function Hero() {
+export default function Hero({ profile }: { profile: Profile }) {
   return (
     <section id="top" style={{ padding: "72px 0 88px" }}>
       <div className="container split-grid split-grid--hero">
@@ -39,13 +39,13 @@ export default function Hero() {
           </div>
         </div>
 
-        <ProfileCard />
+        <ProfileCard profile={profile} />
       </div>
     </section>
   );
 }
 
-function ProfileCard() {
+function ProfileCard({ profile }: { profile: Profile }) {
   return (
     <div className="card" style={{ padding: "28px 28px 24px", boxShadow: "0 30px 60px -30px rgba(0,0,0,0.55)" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>

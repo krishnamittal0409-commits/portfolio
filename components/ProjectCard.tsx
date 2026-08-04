@@ -2,9 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import type { projects } from "@/lib/data";
-
-type Project = (typeof projects)[number];
+import { Project } from "@/lib/content";
 
 export default function ProjectCard({ project }: { project: Project }) {
   const [likes, setLikes] = useState<number | null>(null);
@@ -26,7 +24,9 @@ export default function ProjectCard({ project }: { project: Project }) {
     }
 
     loadLikes();
-    return () => { active = false; };
+    return () => {
+      active = false;
+    };
   }, [project.slug]);
 
   async function handleLike() {
@@ -82,8 +82,8 @@ export default function ProjectCard({ project }: { project: Project }) {
       <p style={{ color: "var(--accent-soft)", fontSize: 13.5, marginTop: 5 }}>{project.tagline}</p>
 
       <ul style={{ marginTop: 16, paddingLeft: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 8, flex: 1 }}>
-        {project.points.map((point) => (
-          <li key={point} style={{ display: "flex", gap: 8, color: "var(--text-dim)", fontSize: 13.5, lineHeight: 1.55 }}>
+        {project.points.map((point, i) => (
+          <li key={i} style={{ display: "flex", gap: 8, color: "var(--text-dim)", fontSize: 13.5, lineHeight: 1.55 }}>
             <span style={{ color: "var(--accent-soft)" }}>&bull;</span>
             {point}
           </li>
@@ -91,15 +91,15 @@ export default function ProjectCard({ project }: { project: Project }) {
       </ul>
 
       <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 18 }}>
-        {project.stack.map((s) => (
-          <span key={s} className="tag">
+        {project.stack.map((s, i) => (
+          <span key={i} className="tag">
             {s}
           </span>
         ))}
       </div>
 
       {project.link && (
-        <a
+        
           href={project.link}
           target="_blank"
           rel="noreferrer"

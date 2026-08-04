@@ -1,6 +1,7 @@
-import { skillGroups } from "@/lib/data";
+// components/Skills.tsx
+import { SkillGroup } from "@/lib/content";
 
-export default function Skills() {
+export default function Skills({ skillGroups }: { skillGroups: SkillGroup[] }) {
   return (
     <section id="skills" className="section">
       <div className="container">
@@ -9,14 +10,14 @@ export default function Skills() {
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 30, marginTop: 40 }}>
           {skillGroups.map((group) => (
-            <div key={group.label}>
+            <div key={group.id}>
               <h3 style={{ fontSize: 13, fontWeight: 600, color: "var(--text-faint)", marginBottom: 12, textTransform: "uppercase", letterSpacing: "0.04em" }}>
                 {group.label}
               </h3>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                {group.items.map((item) => (
+                {group.items.map((item, i) => (
                   <span
-                    key={item}
+                    key={i}
                     style={{
                       fontSize: 13,
                       padding: "7px 12px",

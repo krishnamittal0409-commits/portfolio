@@ -1,6 +1,7 @@
-import { profile } from "@/lib/data";
+// components/Footer.tsx
+import { Profile } from "@/lib/content";
 
-export default function Footer() {
+export default function Footer({ profile }: { profile: Profile }) {
   return (
     <footer style={{ borderTop: "1px solid var(--border-soft)", padding: "28px 0" }}>
       <div className="container" style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 10, fontSize: 13, color: "var(--text-faint)" }}>

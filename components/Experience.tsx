@@ -1,6 +1,7 @@
-import { experience } from "@/lib/data";
+// components/Experience.tsx
+import { ExperienceItem } from "@/lib/content";
 
-export default function Experience() {
+export default function Experience({ experience }: { experience: ExperienceItem[] }) {
   return (
     <section id="work" className="section">
       <div className="container">
@@ -10,7 +11,7 @@ export default function Experience() {
 
         <div style={{ display: "flex", flexDirection: "column", gap: 18, marginTop: 40 }}>
           {experience.map((job) => (
-            <article key={job.company} className="card" style={{ padding: "28px 30px" }}>
+            <article key={job.id} className="card" style={{ padding: "28px 30px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8 }}>
                 <h3 style={{ fontSize: 20, fontWeight: 600 }}>
                   {job.role} <span style={{ color: "var(--text-faint)", fontWeight: 400 }}>at</span> {job.company}
@@ -20,8 +21,8 @@ export default function Experience() {
                 </span>
               </div>
               <ul style={{ marginTop: 18, paddingLeft: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 10 }}>
-                {job.points.map((point) => (
-                  <li key={point} style={{ display: "flex", gap: 10, color: "var(--text-dim)", fontSize: 14.5, lineHeight: 1.6 }}>
+                {job.points.map((point, i) => (
+                  <li key={i} style={{ display: "flex", gap: 10, color: "var(--text-dim)", fontSize: 14.5, lineHeight: 1.6 }}>
                     <span style={{ color: "var(--accent-soft)", marginTop: 2 }}>&bull;</span>
                     {point}
                   </li>

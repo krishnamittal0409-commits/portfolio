@@ -1,7 +1,8 @@
-import { projects } from "@/lib/data";
+// components/Projects.tsx
+import { Project } from "@/lib/content";
 import ProjectCard from "./ProjectCard";
 
-export default function Projects() {
+export default function Projects({ projects }: { projects: Project[] }) {
   return (
     <section id="projects" className="section">
       <div className="container">
