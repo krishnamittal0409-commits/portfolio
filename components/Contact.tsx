@@ -2,11 +2,11 @@
 
 import { useState, FormEvent } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import { profile } from "@/lib/data";
+import { Profile } from "@/lib/content";
 
 type Status = "idle" | "sending" | "sent" | "error";
 
-export default function Contact() {
+export default function Contact({ profile }: { profile: Profile }) {
   const [status, setStatus] = useState<Status>("idle");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");

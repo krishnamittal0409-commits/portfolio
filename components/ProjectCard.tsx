@@ -24,6 +24,12 @@ export default function ProjectCard({ project }: { project: Project }) {
     }
 
     loadLikes();
+
+    // Remember whether this browser already liked this project
+    if (typeof window !== "undefined") {
+      setLiked(window.localStorage.getItem(`liked:${project.slug}`) === "1");
+    }
+
     return () => {
       active = false;
     };
@@ -45,6 +51,9 @@ export default function ProjectCard({ project }: { project: Project }) {
       setLiked(false);
     } else {
       setLikes(data);
+      if (typeof window !== "undefined") {
+        window.localStorage.setItem(`liked:${project.slug}`, "1");
+      }
     }
 
     setPending(false);
@@ -58,7 +67,7 @@ export default function ProjectCard({ project }: { project: Project }) {
         </span>
         <button
           onClick={handleLike}
-          disabled={pending}
+          disabled={pending || liked}
           aria-pressed={liked}
           style={{
             display: "flex",

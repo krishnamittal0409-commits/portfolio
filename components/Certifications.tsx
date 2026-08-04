@@ -1,6 +1,12 @@
-import { certifications, education } from "@/lib/data";
+import { Certification, EducationItem } from "@/lib/content";
 
-export default function Certifications() {
+export default function Certifications({
+  certifications,
+  education,
+}: {
+  certifications: Certification[];
+  education: EducationItem[];
+}) {
   return (
     <section id="certifications" className="section">
       <div className="container split-grid split-grid--certs">
@@ -12,7 +18,7 @@ export default function Certifications() {
           <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column" }}>
             {certifications.map((cert, i) => (
               <li
-                key={cert.name}
+                key={cert.id}
                 style={{
                   display: "flex",
                   justifyContent: "space-between",
@@ -24,7 +30,7 @@ export default function Certifications() {
               >
                 <div>
                   {cert.url ? (
-                    <a
+                    
                       href={cert.url}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -53,7 +59,7 @@ export default function Certifications() {
           </h2>
           <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
             {education.map((ed) => (
-              <div key={ed.school + ed.program}>
+              <div key={ed.id}>
                 <p style={{ fontSize: 14.5 }}>{ed.program}</p>
                 <p style={{ fontSize: 13, color: "var(--text-dim)", marginTop: 3 }}>{ed.school}</p>
                 {ed.period && (
