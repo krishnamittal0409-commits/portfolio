@@ -1197,6 +1197,28 @@ function CertificationsEditor({
   });
 
   const [editing, setEditing] = useState<Certification | null>(null);
+  const [sortDrafts, setSortDrafts] = useState<Record<string, number>>({});
+
+  // Keep local sort drafts in sync when items change
+  useEffect(() => {
+    const next: Record<string, number> = {};
+    items.forEach((item) => {
+      next[item.id] = item.sort_order;
+    });
+    setSortDrafts(next);
+  }, [items]);
+
+  const handleSortChange = (id: string, value: string) => {
+    const num = Number(value);
+    if (Number.isNaN(num)) return;
+    setSortDrafts((prev) => ({ ...prev, [id]: num }));
+  };
+
+  const saveSortOrder = (item: Certification) => {
+    const newOrder = sortDrafts[item.id];
+    if (newOrder === undefined || newOrder === item.sort_order) return;
+    onSave({ ...item, sort_order: newOrder });
+  };
 
   return (
     <div>
@@ -1264,36 +1286,79 @@ function CertificationsEditor({
         <EmptyState text="No certifications yet." />
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          {items.map((item) => (
-            <div key={item.id} className="card" style={{ padding: 16 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
-                <div>
-                  <strong>{item.name}</strong>
-                  <div style={{ color: "var(--text-faint)", fontSize: 13, marginTop: 4 }}>
-                    {item.issuer} · {item.year}
+          {items.map((item) => {
+            const draft = sortDrafts[item.id] ?? item.sort_order;
+            const changed = draft !== item.sort_order;
+
+            return (
+              <div key={item.id} className="card" style={{ padding: 16 }}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    gap: 12,
+                    flexWrap: "wrap",
+                    alignItems: "center",
+                  }}
+                >
+                  <div style={{ flex: 1, minWidth: 180 }}>
+                    <strong>{item.name}</strong>
+                    <div style={{ color: "var(--text-faint)", fontSize: 13, marginTop: 4 }}>
+                      {item.issuer} · {item.year}
+                    </div>
+                  </div>
+
+                  {/* Inline sort order */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ fontSize: 12, color: "var(--text-faint)" }}>Sort</span>
+                    <input
+                      type="number"
+                      value={draft}
+                      onChange={(e) => handleSortChange(item.id, e.target.value)}
+                      style={{
+                        ...inputStyle,
+                        width: 72,
+                        padding: "6px 8px",
+                        textAlign: "center",
+                      }}
+                    />
+                    {changed && (
+                      <button
+                        className="btn btn-primary"
+                        style={{ fontSize: 12, padding: "6px 10px" }}
+                        disabled={saving}
+                        onClick={() => saveSortOrder(item)}
+                      >
+                        {saving ? "..." : "Save"}
+                      </button>
+                    )}
+                  </div>
+
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <button
+                      className="btn"
+                      style={{ fontSize: 13, padding: "6px 12px" }}
+                      onClick={() => setEditing(item)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="btn"
+                      style={{ fontSize: 13, padding: "6px 12px", color: "#e0715c" }}
+                      onClick={() => onDelete(item.id)}
+                    >
+                      Delete
+                    </button>
                   </div>
                 </div>
-                <div style={{ display: "flex", gap: 8 }}>
-                  <button className="btn" style={{ fontSize: 13, padding: "6px 12px" }} onClick={() => setEditing(item)}>
-                    Edit
-                  </button>
-                  <button
-                    className="btn"
-                    style={{ fontSize: 13, padding: "6px 12px", color: "#e0715c" }}
-                    onClick={() => onDelete(item.id)}
-                  >
-                    Delete
-                  </button>
-                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
   );
 }
-
 /* ==================== Education ==================== */
 
 function EducationEditor({
