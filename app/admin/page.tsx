@@ -233,9 +233,7 @@ export default function AdminPage() {
   const saveProfile = async (data: Partial<Profile>) => {
     setSaving(true);
     setError(null);
-    const { error: err } = await supabase
-      .from("profile")
-      .upsert({ id: 1, ...data });
+    const { error: err } = await supabase.from("profile").upsert({ id: 1, ...data });
     if (err) setError(err.message);
     else {
       setProfile((prev) => (prev ? { ...prev, ...data } : (data as Profile)));
@@ -244,7 +242,7 @@ export default function AdminPage() {
     setSaving(false);
   };
 
-  // ---------- Generic list helpers ----------
+  // ---------- Experience ----------
   const saveExperience = async (item: ExperienceItem) => {
     setSaving(true);
     setError(null);
@@ -254,7 +252,7 @@ export default function AdminPage() {
       setExperience((prev) => {
         const exists = prev.some((x) => x.id === item.id);
         return exists
-          ? prev.map((x) => (x.id === item.id ? item : x))
+          ? prev.map((x) => (x.id === item.id ? item : x)).sort((a, b) => a.sort_order - b.sort_order)
           : [...prev, item].sort((a, b) => a.sort_order - b.sort_order);
       });
       showSuccess("Experience saved");
@@ -269,6 +267,7 @@ export default function AdminPage() {
     else setExperience((prev) => prev.filter((x) => x.id !== id));
   };
 
+  // ---------- Projects ----------
   const saveProject = async (item: Project) => {
     setSaving(true);
     setError(null);
@@ -278,7 +277,7 @@ export default function AdminPage() {
       setProjects((prev) => {
         const exists = prev.some((x) => x.id === item.id);
         return exists
-          ? prev.map((x) => (x.id === item.id ? item : x))
+          ? prev.map((x) => (x.id === item.id ? item : x)).sort((a, b) => a.sort_order - b.sort_order)
           : [...prev, item].sort((a, b) => a.sort_order - b.sort_order);
       });
       showSuccess("Project saved");
@@ -293,6 +292,7 @@ export default function AdminPage() {
     else setProjects((prev) => prev.filter((x) => x.id !== id));
   };
 
+  // ---------- Skills ----------
   const saveSkillGroup = async (item: SkillGroup) => {
     setSaving(true);
     setError(null);
@@ -302,7 +302,7 @@ export default function AdminPage() {
       setSkillGroups((prev) => {
         const exists = prev.some((x) => x.id === item.id);
         return exists
-          ? prev.map((x) => (x.id === item.id ? item : x))
+          ? prev.map((x) => (x.id === item.id ? item : x)).sort((a, b) => a.sort_order - b.sort_order)
           : [...prev, item].sort((a, b) => a.sort_order - b.sort_order);
       });
       showSuccess("Skill group saved");
@@ -317,6 +317,7 @@ export default function AdminPage() {
     else setSkillGroups((prev) => prev.filter((x) => x.id !== id));
   };
 
+  // ---------- Certifications ----------
   const saveCertification = async (item: Certification) => {
     setSaving(true);
     setError(null);
@@ -326,7 +327,7 @@ export default function AdminPage() {
       setCertifications((prev) => {
         const exists = prev.some((x) => x.id === item.id);
         return exists
-          ? prev.map((x) => (x.id === item.id ? item : x))
+          ? prev.map((x) => (x.id === item.id ? item : x)).sort((a, b) => a.sort_order - b.sort_order)
           : [...prev, item].sort((a, b) => a.sort_order - b.sort_order);
       });
       showSuccess("Certification saved");
@@ -341,6 +342,7 @@ export default function AdminPage() {
     else setCertifications((prev) => prev.filter((x) => x.id !== id));
   };
 
+  // ---------- Education ----------
   const saveEducation = async (item: EducationItem) => {
     setSaving(true);
     setError(null);
@@ -350,7 +352,7 @@ export default function AdminPage() {
       setEducation((prev) => {
         const exists = prev.some((x) => x.id === item.id);
         return exists
-          ? prev.map((x) => (x.id === item.id ? item : x))
+          ? prev.map((x) => (x.id === item.id ? item : x)).sort((a, b) => a.sort_order - b.sort_order)
           : [...prev, item].sort((a, b) => a.sort_order - b.sort_order);
       });
       showSuccess("Education saved");
@@ -588,13 +590,7 @@ const labelStyle: React.CSSProperties = {
   display: "block",
 };
 
-function Field({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div style={{ marginBottom: 14 }}>
       <label style={labelStyle}>{label}</label>
@@ -808,6 +804,27 @@ function ExperienceEditor({
   });
 
   const [editing, setEditing] = useState<ExperienceItem | null>(null);
+  const [sortDrafts, setSortDrafts] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    const next: Record<string, number> = {};
+    items.forEach((item) => {
+      next[item.id] = item.sort_order;
+    });
+    setSortDrafts(next);
+  }, [items]);
+
+  const handleSortChange = (id: string, value: string) => {
+    const num = Number(value);
+    if (Number.isNaN(num)) return;
+    setSortDrafts((prev) => ({ ...prev, [id]: num }));
+  };
+
+  const saveSortOrder = (item: ExperienceItem) => {
+    const newOrder = sortDrafts[item.id];
+    if (newOrder === undefined || newOrder === item.sort_order) return;
+    onSave({ ...item, sort_order: newOrder });
+  };
 
   return (
     <div>
@@ -842,12 +859,7 @@ function ExperienceEditor({
             <textarea
               style={{ ...inputStyle, minHeight: 100, resize: "vertical" }}
               value={editing.points.join("\n")}
-              onChange={(e) =>
-                setEditing({
-                  ...editing,
-                  points: e.target.value.split("\n"),
-                })
-              }
+              onChange={(e) => setEditing({ ...editing, points: e.target.value.split("\n") })}
             />
           </Field>
           <Field label="Sort order">
@@ -883,28 +895,62 @@ function ExperienceEditor({
         <EmptyState text="No experience entries yet." />
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          {items.map((item) => (
-            <div key={item.id} className="card" style={{ padding: 16 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
-                <div>
-                  <strong>{item.role}</strong> at {item.company}
-                  <div style={{ color: "var(--text-faint)", fontSize: 13, marginTop: 4 }}>{item.period}</div>
-                </div>
-                <div style={{ display: "flex", gap: 8 }}>
-                  <button className="btn" style={{ fontSize: 13, padding: "6px 12px" }} onClick={() => setEditing(item)}>
-                    Edit
-                  </button>
-                  <button
-                    className="btn"
-                    style={{ fontSize: 13, padding: "6px 12px", color: "#e0715c" }}
-                    onClick={() => onDelete(item.id)}
-                  >
-                    Delete
-                  </button>
+          {items.map((item) => {
+            const draft = sortDrafts[item.id] ?? item.sort_order;
+            const changed = draft !== item.sort_order;
+
+            return (
+              <div key={item.id} className="card" style={{ padding: 16 }}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    gap: 12,
+                    flexWrap: "wrap",
+                    alignItems: "center",
+                  }}
+                >
+                  <div style={{ flex: 1, minWidth: 180 }}>
+                    <strong>{item.role}</strong> at {item.company}
+                    <div style={{ color: "var(--text-faint)", fontSize: 13, marginTop: 4 }}>{item.period}</div>
+                  </div>
+
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ fontSize: 12, color: "var(--text-faint)" }}>Sort</span>
+                    <input
+                      type="number"
+                      value={draft}
+                      onChange={(e) => handleSortChange(item.id, e.target.value)}
+                      style={{ ...inputStyle, width: 72, padding: "6px 8px", textAlign: "center" }}
+                    />
+                    {changed && (
+                      <button
+                        className="btn btn-primary"
+                        style={{ fontSize: 12, padding: "6px 10px" }}
+                        disabled={saving}
+                        onClick={() => saveSortOrder(item)}
+                      >
+                        {saving ? "..." : "Save"}
+                      </button>
+                    )}
+                  </div>
+
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <button className="btn" style={{ fontSize: 13, padding: "6px 12px" }} onClick={() => setEditing(item)}>
+                      Edit
+                    </button>
+                    <button
+                      className="btn"
+                      style={{ fontSize: 13, padding: "6px 12px", color: "#e0715c" }}
+                      onClick={() => onDelete(item.id)}
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
@@ -937,6 +983,27 @@ function ProjectsEditor({
   });
 
   const [editing, setEditing] = useState<Project | null>(null);
+  const [sortDrafts, setSortDrafts] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    const next: Record<string, number> = {};
+    items.forEach((item) => {
+      next[item.id] = item.sort_order;
+    });
+    setSortDrafts(next);
+  }, [items]);
+
+  const handleSortChange = (id: string, value: string) => {
+    const num = Number(value);
+    if (Number.isNaN(num)) return;
+    setSortDrafts((prev) => ({ ...prev, [id]: num }));
+  };
+
+  const saveSortOrder = (item: Project) => {
+    const newOrder = sortDrafts[item.id];
+    if (newOrder === undefined || newOrder === item.sort_order) return;
+    onSave({ ...item, sort_order: newOrder });
+  };
 
   return (
     <div>
@@ -1035,30 +1102,64 @@ function ProjectsEditor({
         <EmptyState text="No projects yet." />
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          {items.map((item) => (
-            <div key={item.id} className="card" style={{ padding: 16 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
-                <div>
-                  <strong>{item.name}</strong>
-                  <div style={{ color: "var(--text-faint)", fontSize: 13, marginTop: 4 }}>
-                    {item.code} · {item.tagline}
+          {items.map((item) => {
+            const draft = sortDrafts[item.id] ?? item.sort_order;
+            const changed = draft !== item.sort_order;
+
+            return (
+              <div key={item.id} className="card" style={{ padding: 16 }}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    gap: 12,
+                    flexWrap: "wrap",
+                    alignItems: "center",
+                  }}
+                >
+                  <div style={{ flex: 1, minWidth: 180 }}>
+                    <strong>{item.name}</strong>
+                    <div style={{ color: "var(--text-faint)", fontSize: 13, marginTop: 4 }}>
+                      {item.code} · {item.tagline}
+                    </div>
+                  </div>
+
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ fontSize: 12, color: "var(--text-faint)" }}>Sort</span>
+                    <input
+                      type="number"
+                      value={draft}
+                      onChange={(e) => handleSortChange(item.id, e.target.value)}
+                      style={{ ...inputStyle, width: 72, padding: "6px 8px", textAlign: "center" }}
+                    />
+                    {changed && (
+                      <button
+                        className="btn btn-primary"
+                        style={{ fontSize: 12, padding: "6px 10px" }}
+                        disabled={saving}
+                        onClick={() => saveSortOrder(item)}
+                      >
+                        {saving ? "..." : "Save"}
+                      </button>
+                    )}
+                  </div>
+
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <button className="btn" style={{ fontSize: 13, padding: "6px 12px" }} onClick={() => setEditing(item)}>
+                      Edit
+                    </button>
+                    <button
+                      className="btn"
+                      style={{ fontSize: 13, padding: "6px 12px", color: "#e0715c" }}
+                      onClick={() => onDelete(item.id)}
+                    >
+                      Delete
+                    </button>
                   </div>
                 </div>
-                <div style={{ display: "flex", gap: 8 }}>
-                  <button className="btn" style={{ fontSize: 13, padding: "6px 12px" }} onClick={() => setEditing(item)}>
-                    Edit
-                  </button>
-                  <button
-                    className="btn"
-                    style={{ fontSize: 13, padding: "6px 12px", color: "#e0715c" }}
-                    onClick={() => onDelete(item.id)}
-                  >
-                    Delete
-                  </button>
-                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
@@ -1086,6 +1187,27 @@ function SkillsEditor({
   });
 
   const [editing, setEditing] = useState<SkillGroup | null>(null);
+  const [sortDrafts, setSortDrafts] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    const next: Record<string, number> = {};
+    items.forEach((item) => {
+      next[item.id] = item.sort_order;
+    });
+    setSortDrafts(next);
+  }, [items]);
+
+  const handleSortChange = (id: string, value: string) => {
+    const num = Number(value);
+    if (Number.isNaN(num)) return;
+    setSortDrafts((prev) => ({ ...prev, [id]: num }));
+  };
+
+  const saveSortOrder = (item: SkillGroup) => {
+    const newOrder = sortDrafts[item.id];
+    if (newOrder === undefined || newOrder === item.sort_order) return;
+    onSave({ ...item, sort_order: newOrder });
+  };
 
   return (
     <div>
@@ -1144,30 +1266,64 @@ function SkillsEditor({
         <EmptyState text="No skill groups yet." />
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          {items.map((item) => (
-            <div key={item.id} className="card" style={{ padding: 16 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
-                <div>
-                  <strong>{item.label}</strong>
-                  <div style={{ color: "var(--text-faint)", fontSize: 13, marginTop: 4 }}>
-                    {item.items.join(" · ")}
+          {items.map((item) => {
+            const draft = sortDrafts[item.id] ?? item.sort_order;
+            const changed = draft !== item.sort_order;
+
+            return (
+              <div key={item.id} className="card" style={{ padding: 16 }}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    gap: 12,
+                    flexWrap: "wrap",
+                    alignItems: "center",
+                  }}
+                >
+                  <div style={{ flex: 1, minWidth: 180 }}>
+                    <strong>{item.label}</strong>
+                    <div style={{ color: "var(--text-faint)", fontSize: 13, marginTop: 4 }}>
+                      {item.items.join(" · ")}
+                    </div>
+                  </div>
+
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ fontSize: 12, color: "var(--text-faint)" }}>Sort</span>
+                    <input
+                      type="number"
+                      value={draft}
+                      onChange={(e) => handleSortChange(item.id, e.target.value)}
+                      style={{ ...inputStyle, width: 72, padding: "6px 8px", textAlign: "center" }}
+                    />
+                    {changed && (
+                      <button
+                        className="btn btn-primary"
+                        style={{ fontSize: 12, padding: "6px 10px" }}
+                        disabled={saving}
+                        onClick={() => saveSortOrder(item)}
+                      >
+                        {saving ? "..." : "Save"}
+                      </button>
+                    )}
+                  </div>
+
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <button className="btn" style={{ fontSize: 13, padding: "6px 12px" }} onClick={() => setEditing(item)}>
+                      Edit
+                    </button>
+                    <button
+                      className="btn"
+                      style={{ fontSize: 13, padding: "6px 12px", color: "#e0715c" }}
+                      onClick={() => onDelete(item.id)}
+                    >
+                      Delete
+                    </button>
                   </div>
                 </div>
-                <div style={{ display: "flex", gap: 8 }}>
-                  <button className="btn" style={{ fontSize: 13, padding: "6px 12px" }} onClick={() => setEditing(item)}>
-                    Edit
-                  </button>
-                  <button
-                    className="btn"
-                    style={{ fontSize: 13, padding: "6px 12px", color: "#e0715c" }}
-                    onClick={() => onDelete(item.id)}
-                  >
-                    Delete
-                  </button>
-                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
@@ -1199,7 +1355,6 @@ function CertificationsEditor({
   const [editing, setEditing] = useState<Certification | null>(null);
   const [sortDrafts, setSortDrafts] = useState<Record<string, number>>({});
 
-  // Keep local sort drafts in sync when items change
   useEffect(() => {
     const next: Record<string, number> = {};
     items.forEach((item) => {
@@ -1308,19 +1463,13 @@ function CertificationsEditor({
                     </div>
                   </div>
 
-                  {/* Inline sort order */}
                   <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     <span style={{ fontSize: 12, color: "var(--text-faint)" }}>Sort</span>
                     <input
                       type="number"
                       value={draft}
                       onChange={(e) => handleSortChange(item.id, e.target.value)}
-                      style={{
-                        ...inputStyle,
-                        width: 72,
-                        padding: "6px 8px",
-                        textAlign: "center",
-                      }}
+                      style={{ ...inputStyle, width: 72, padding: "6px 8px", textAlign: "center" }}
                     />
                     {changed && (
                       <button
@@ -1335,11 +1484,7 @@ function CertificationsEditor({
                   </div>
 
                   <div style={{ display: "flex", gap: 8 }}>
-                    <button
-                      className="btn"
-                      style={{ fontSize: 13, padding: "6px 12px" }}
-                      onClick={() => setEditing(item)}
-                    >
+                    <button className="btn" style={{ fontSize: 13, padding: "6px 12px" }} onClick={() => setEditing(item)}>
                       Edit
                     </button>
                     <button
@@ -1359,6 +1504,7 @@ function CertificationsEditor({
     </div>
   );
 }
+
 /* ==================== Education ==================== */
 
 function EducationEditor({
@@ -1381,6 +1527,27 @@ function EducationEditor({
   });
 
   const [editing, setEditing] = useState<EducationItem | null>(null);
+  const [sortDrafts, setSortDrafts] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    const next: Record<string, number> = {};
+    items.forEach((item) => {
+      next[item.id] = item.sort_order;
+    });
+    setSortDrafts(next);
+  }, [items]);
+
+  const handleSortChange = (id: string, value: string) => {
+    const num = Number(value);
+    if (Number.isNaN(num)) return;
+    setSortDrafts((prev) => ({ ...prev, [id]: num }));
+  };
+
+  const saveSortOrder = (item: EducationItem) => {
+    const newOrder = sortDrafts[item.id];
+    if (newOrder === undefined || newOrder === item.sort_order) return;
+    onSave({ ...item, sort_order: newOrder });
+  };
 
   return (
     <div>
@@ -1441,30 +1608,64 @@ function EducationEditor({
         <EmptyState text="No education entries yet." />
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          {items.map((item) => (
-            <div key={item.id} className="card" style={{ padding: 16 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
-                <div>
-                  <strong>{item.program}</strong>
-                  <div style={{ color: "var(--text-faint)", fontSize: 13, marginTop: 4 }}>
-                    {item.school} · {item.period}
+          {items.map((item) => {
+            const draft = sortDrafts[item.id] ?? item.sort_order;
+            const changed = draft !== item.sort_order;
+
+            return (
+              <div key={item.id} className="card" style={{ padding: 16 }}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    gap: 12,
+                    flexWrap: "wrap",
+                    alignItems: "center",
+                  }}
+                >
+                  <div style={{ flex: 1, minWidth: 180 }}>
+                    <strong>{item.program}</strong>
+                    <div style={{ color: "var(--text-faint)", fontSize: 13, marginTop: 4 }}>
+                      {item.school} · {item.period}
+                    </div>
+                  </div>
+
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ fontSize: 12, color: "var(--text-faint)" }}>Sort</span>
+                    <input
+                      type="number"
+                      value={draft}
+                      onChange={(e) => handleSortChange(item.id, e.target.value)}
+                      style={{ ...inputStyle, width: 72, padding: "6px 8px", textAlign: "center" }}
+                    />
+                    {changed && (
+                      <button
+                        className="btn btn-primary"
+                        style={{ fontSize: 12, padding: "6px 10px" }}
+                        disabled={saving}
+                        onClick={() => saveSortOrder(item)}
+                      >
+                        {saving ? "..." : "Save"}
+                      </button>
+                    )}
+                  </div>
+
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <button className="btn" style={{ fontSize: 13, padding: "6px 12px" }} onClick={() => setEditing(item)}>
+                      Edit
+                    </button>
+                    <button
+                      className="btn"
+                      style={{ fontSize: 13, padding: "6px 12px", color: "#e0715c" }}
+                      onClick={() => onDelete(item.id)}
+                    >
+                      Delete
+                    </button>
                   </div>
                 </div>
-                <div style={{ display: "flex", gap: 8 }}>
-                  <button className="btn" style={{ fontSize: 13, padding: "6px 12px" }} onClick={() => setEditing(item)}>
-                    Edit
-                  </button>
-                  <button
-                    className="btn"
-                    style={{ fontSize: 13, padding: "6px 12px", color: "#e0715c" }}
-                    onClick={() => onDelete(item.id)}
-                  >
-                    Delete
-                  </button>
-                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
