@@ -108,7 +108,7 @@ export default function ProjectCard({ project }: { project: Project }) {
       </div>
 
       {project.link && (
-        
+        <a
           href={project.link}
           target="_blank"
           rel="noreferrer"

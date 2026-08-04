@@ -30,7 +30,7 @@ export default function Certifications({
               >
                 <div>
                   {cert.url ? (
-                    
+                    <a
                       href={cert.url}
                       target="_blank"
                       rel="noopener noreferrer"
