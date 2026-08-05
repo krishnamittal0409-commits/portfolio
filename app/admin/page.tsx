@@ -118,6 +118,13 @@ export default function AdminPage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
+  // Tells the public homepage's server-rendered cache to refresh.
+  // Fire-and-forget: we don't want a slow/failed revalidate call to block
+  // the admin UI from showing its own success state.
+  const revalidateHome = () => {
+    fetch("/api/revalidate", { method: "POST" }).catch(() => {});
+  };
+
   const loadDashboard = useCallback(async (uid: string) => {
     setDataLoading(true);
     setError(null);
@@ -238,6 +245,7 @@ export default function AdminPage() {
     else {
       setProfile((prev) => (prev ? { ...prev, ...data } : (data as Profile)));
       showSuccess("Profile saved");
+      revalidateHome();
     }
     setSaving(false);
   };
@@ -256,6 +264,7 @@ export default function AdminPage() {
           : [...prev, item].sort((a, b) => a.sort_order - b.sort_order);
       });
       showSuccess("Experience saved");
+      revalidateHome();
     }
     setSaving(false);
   };
@@ -264,7 +273,10 @@ export default function AdminPage() {
     if (!confirm("Delete this experience?")) return;
     const { error: err } = await supabase.from("experience").delete().eq("id", id);
     if (err) setError(err.message);
-    else setExperience((prev) => prev.filter((x) => x.id !== id));
+    else {
+      setExperience((prev) => prev.filter((x) => x.id !== id));
+      revalidateHome();
+    }
   };
 
   // ---------- Projects ----------
@@ -281,6 +293,7 @@ export default function AdminPage() {
           : [...prev, item].sort((a, b) => a.sort_order - b.sort_order);
       });
       showSuccess("Project saved");
+      revalidateHome();
     }
     setSaving(false);
   };
@@ -289,7 +302,10 @@ export default function AdminPage() {
     if (!confirm("Delete this project?")) return;
     const { error: err } = await supabase.from("projects").delete().eq("id", id);
     if (err) setError(err.message);
-    else setProjects((prev) => prev.filter((x) => x.id !== id));
+    else {
+      setProjects((prev) => prev.filter((x) => x.id !== id));
+      revalidateHome();
+    }
   };
 
   // ---------- Skills ----------
@@ -306,6 +322,7 @@ export default function AdminPage() {
           : [...prev, item].sort((a, b) => a.sort_order - b.sort_order);
       });
       showSuccess("Skill group saved");
+      revalidateHome();
     }
     setSaving(false);
   };
@@ -314,7 +331,10 @@ export default function AdminPage() {
     if (!confirm("Delete this skill group?")) return;
     const { error: err } = await supabase.from("skill_groups").delete().eq("id", id);
     if (err) setError(err.message);
-    else setSkillGroups((prev) => prev.filter((x) => x.id !== id));
+    else {
+      setSkillGroups((prev) => prev.filter((x) => x.id !== id));
+      revalidateHome();
+    }
   };
 
   // ---------- Certifications ----------
@@ -331,6 +351,7 @@ export default function AdminPage() {
           : [...prev, item].sort((a, b) => a.sort_order - b.sort_order);
       });
       showSuccess("Certification saved");
+      revalidateHome();
     }
     setSaving(false);
   };
@@ -339,7 +360,10 @@ export default function AdminPage() {
     if (!confirm("Delete this certification?")) return;
     const { error: err } = await supabase.from("certifications").delete().eq("id", id);
     if (err) setError(err.message);
-    else setCertifications((prev) => prev.filter((x) => x.id !== id));
+    else {
+      setCertifications((prev) => prev.filter((x) => x.id !== id));
+      revalidateHome();
+    }
   };
 
   // ---------- Education ----------
@@ -356,6 +380,7 @@ export default function AdminPage() {
           : [...prev, item].sort((a, b) => a.sort_order - b.sort_order);
       });
       showSuccess("Education saved");
+      revalidateHome();
     }
     setSaving(false);
   };
@@ -364,7 +389,10 @@ export default function AdminPage() {
     if (!confirm("Delete this education entry?")) return;
     const { error: err } = await supabase.from("education").delete().eq("id", id);
     if (err) setError(err.message);
-    else setEducation((prev) => prev.filter((x) => x.id !== id));
+    else {
+      setEducation((prev) => prev.filter((x) => x.id !== id));
+      revalidateHome();
+    }
   };
 
   // ---------- Render ----------
