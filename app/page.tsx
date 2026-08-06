@@ -7,7 +7,7 @@ import Skills from "@/components/Skills";
 import Certifications from "@/components/Certifications";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 import {
   getProfile,

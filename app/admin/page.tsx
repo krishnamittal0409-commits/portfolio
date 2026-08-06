@@ -121,9 +121,12 @@ export default function AdminPage() {
   // Tells the public homepage's server-rendered cache to refresh.
   // Fire-and-forget: we don't want a slow/failed revalidate call to block
   // the admin UI from showing its own success state.
-  const revalidateHome = () => {
-    fetch("/api/revalidate", { method: "POST" }).catch(() => {});
-  };
+const revalidateHome = () => {
+  fetch("/api/revalidate", {
+    method: "POST",
+    headers: { "x-revalidate-secret": process.env.NEXT_PUBLIC_REVALIDATE_SECRET ?? "" },
+  }).catch(() => {});
+};
 
   const loadDashboard = useCallback(async (uid: string) => {
     setDataLoading(true);
