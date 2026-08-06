@@ -49,6 +49,7 @@ export type Certification = {
   issuer: string;
   year: string;
   url: string | null;
+  category: string;
   sort_order: number;
 };
 

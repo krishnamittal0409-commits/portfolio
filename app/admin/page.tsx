@@ -84,6 +84,7 @@ type Certification = {
   issuer: string;
   year: string;
   url: string | null;
+  category: string;
   sort_order: number;
 };
 
@@ -1380,6 +1381,7 @@ function CertificationsEditor({
     issuer: "",
     year: "",
     url: null,
+    category: "",
     sort_order: items.length,
   });
 
@@ -1405,6 +1407,13 @@ function CertificationsEditor({
     if (newOrder === undefined || newOrder === item.sort_order) return;
     onSave({ ...item, sort_order: newOrder });
   };
+
+  // Existing categories, derived from current items — used to power the
+  // datalist so you can either pick one that already exists or just type
+  // a brand new category name and it'll be created on save.
+  const existingCategories = Array.from(
+    new Set(items.map((i) => i.category).filter(Boolean))
+  ).sort();
 
   return (
     <div>
@@ -1435,6 +1444,20 @@ function CertificationsEditor({
               onChange={(e) => setEditing({ ...editing, year: e.target.value })}
             />
           </Field>
+          <Field label="Category (pick an existing one or type a new one)">
+            <input
+              style={inputStyle}
+              list="cert-category-options"
+              value={editing.category}
+              onChange={(e) => setEditing({ ...editing, category: e.target.value })}
+              placeholder="e.g. Development, Marketing & SEO, AI & Productivity..."
+            />
+            <datalist id="cert-category-options">
+              {existingCategories.map((c) => (
+                <option key={c} value={c} />
+              ))}
+            </datalist>
+          </Field>
           <Field label="URL (optional)">
             <input
               style={inputStyle}
@@ -1453,9 +1476,9 @@ function CertificationsEditor({
           <div style={{ display: "flex", gap: 10 }}>
             <button
               className="btn btn-primary"
-              disabled={saving}
+              disabled={saving || !editing.category.trim()}
               onClick={() => {
-                onSave(editing);
+                onSave({ ...editing, category: editing.category.trim() });
                 setEditing(null);
               }}
             >
@@ -1491,6 +1514,11 @@ function CertificationsEditor({
                     <strong>{item.name}</strong>
                     <div style={{ color: "var(--text-faint)", fontSize: 13, marginTop: 4 }}>
                       {item.issuer} · {item.year}
+                      {item.category && (
+                        <span className="tag" style={{ marginLeft: 8 }}>
+                          {item.category}
+                        </span>
+                      )}
                     </div>
                   </div>
 
